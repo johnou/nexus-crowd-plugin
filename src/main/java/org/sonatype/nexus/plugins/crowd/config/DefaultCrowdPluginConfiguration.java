@@ -20,13 +20,19 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
 import org.sonatype.nexus.plugins.crowd.config.model.v1_0_0.Configuration;
 import org.sonatype.nexus.plugins.crowd.config.model.v1_0_0.io.xpp3.NexusCrowdPluginConfigurationXpp3Reader;
 import org.sonatype.plexus.appevents.SimpleEventMulticaster;
 
+import javax.inject.Inject;
+
 @Component(role = CrowdPluginConfiguration.class, hint = "default")
 public class DefaultCrowdPluginConfiguration extends SimpleEventMulticaster implements
         CrowdPluginConfiguration {
+
+    @Inject
+    private Logger logger;
 
     @org.codehaus.plexus.component.annotations.Configuration(value = "${nexus-work}/conf/crowd-plugin.xml")
     private File configurationFile;
@@ -51,13 +57,13 @@ public class DefaultCrowdPluginConfiguration extends SimpleEventMulticaster impl
 
             configuration = reader.read(is);
         } catch (FileNotFoundException e) {
-            getLogger().error(
+            logger.error(
                     "Crowd configuration file does not exist: "
                             + configurationFile.getAbsolutePath());
         } catch (IOException e) {
-            getLogger().error("IOException while retrieving configuration file", e);
+            logger.error("IOException while retrieving configuration file", e);
         } catch (XmlPullParserException e) {
-            getLogger().error("Invalid XML Configuration", e);
+            logger.error("Invalid XML Configuration", e);
         } finally {
             if (is != null) {
                 try {

@@ -74,13 +74,6 @@
                     <required>false</required>
                 </field>
                 <field>
-                    <name>useGroups</name>
-                    <version>1.0.0+</version>
-                    <description>If true, Crowd groups will be used as the source of Nexus role names.</description>
-                    <type>boolean</type>
-                    <required>false</required>
-                </field>
-                <field>
                     <name>extraCrowdProperties</name>
                     <version>1.0.0+</version>
                     <description>A list of additional properties for the Crowd client.

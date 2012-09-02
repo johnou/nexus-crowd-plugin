@@ -25,7 +25,6 @@ import org.sonatype.nexus.plugins.crowd.caching.AuthCacheImpl;
 import org.sonatype.nexus.plugins.crowd.caching.CachingAuthenticationManager;
 import org.sonatype.nexus.plugins.crowd.config.CrowdPluginConfiguration;
 import org.sonatype.nexus.plugins.crowd.config.model.v1_0_0.Configuration;
-import org.sonatype.plexus.components.ehcache.PlexusEhCacheWrapper;
 
 import com.atlassian.crowd.service.AuthenticationManager;
 import com.atlassian.crowd.service.GroupManager;
@@ -38,12 +37,12 @@ import com.atlassian.crowd.service.soap.client.SecurityServerClient;
 import com.atlassian.crowd.service.soap.client.SecurityServerClientImpl;
 import com.atlassian.crowd.service.soap.client.SoapClientProperties;
 import com.atlassian.crowd.service.soap.client.SoapClientPropertiesImpl;
+import org.sonatype.sisu.ehcache.CacheManagerComponent;
 
 /**
  * Implementation of the CrowdClientHolder which uses caching wherever possible.
  *
  * @author Justin Edelson
- *
  */
 @Component(role = CrowdClientHolder.class, hint = "default")
 public class DefaultCrowdClientHolder extends AbstractLogEnabled implements CrowdClientHolder, Initializable {
@@ -54,10 +53,10 @@ public class DefaultCrowdClientHolder extends AbstractLogEnabled implements Crow
 
     private AuthBasicCache basicCache;
 
-    @Requirement
-    private PlexusEhCacheWrapper cacheManager;
-
     private Configuration configuration;
+
+    @Requirement
+    private CacheManagerComponent cacheManagerComponent;
 
     @Requirement
     private CrowdPluginConfiguration crowdPluginConfiguration;
@@ -101,21 +100,18 @@ public class DefaultCrowdClientHolder extends AbstractLogEnabled implements Crow
     }
 
     public void initialize() throws InitializationException {
-        basicCache = new AuthCacheImpl(cacheManager.getEhCacheManager());
+        basicCache = new AuthCacheImpl(cacheManagerComponent.getCacheManager());
         configuration = crowdPluginConfiguration.getConfiguration();
         if (configuration != null) {
             SoapClientProperties clientProps = SoapClientPropertiesImpl.newInstanceFromProperties(configuration.getCrowdClientProperties());
             securityServerClient = new SecurityServerClientImpl(clientProps);
             userManager = new CachingUserManager(securityServerClient, basicCache);
             groupManager = new CachingGroupManager(securityServerClient, basicCache);
-            groupMembershipManager = new CachingGroupMembershipManager(securityServerClient, userManager, groupManager,
-                    basicCache);
+            groupMembershipManager = new CachingGroupMembershipManager(securityServerClient, userManager, groupManager, basicCache);
             authenticationManager = new CachingAuthenticationManager(securityServerClient, basicCache);
-            nexusRoleManager = new DefaultNexusRoleManager(configuration.isUseGroups(), groupManager,
-                    groupMembershipManager, securityServerClient);
+            nexusRoleManager = new DefaultNexusRoleManager(groupManager, groupMembershipManager, securityServerClient);
             configured = true;
         }
-
     }
 
     /**
@@ -124,5 +120,4 @@ public class DefaultCrowdClientHolder extends AbstractLogEnabled implements Crow
     public boolean isConfigured() {
         return configured;
     }
-
 }

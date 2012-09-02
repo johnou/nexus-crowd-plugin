@@ -33,43 +33,28 @@ public class DefaultNexusRoleManager implements NexusRoleManager {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultNexusRoleManager.class);
 
-    private boolean useGroups;
     private GroupManager groupManager;
     private GroupMembershipManager groupMembershipManager;
     private SecurityServerClient securityServerClient;
 
-    public DefaultNexusRoleManager(boolean useGroups, GroupManager groupManager,
+    public DefaultNexusRoleManager(GroupManager groupManager,
             GroupMembershipManager groupMembershipManager, SecurityServerClient securityServerClient) {
-        this.useGroups = useGroups;
         this.groupManager = groupManager;
         this.groupMembershipManager = groupMembershipManager;
         this.securityServerClient = securityServerClient;
     }
 
-    @SuppressWarnings({ "deprecation", "unchecked" })
     public List<String> getAllNexusRoles() throws RemoteException, InvalidAuthenticationException, com.atlassian.crowd.exception.InvalidAuthorizationTokenException {
-        List<String> roles;
-        if (useGroups) {
-            roles = groupManager.getAllGroupNames();
-        } else {
-            roles = Arrays.asList(securityServerClient.findAllRoleNames());
-        }
-        return roles;
+        return groupManager.getAllGroupNames();
     }
 
-    @SuppressWarnings({ "deprecation", "unchecked" })
     public List<String> getNexusRoles(String username) throws RemoteException,
             InvalidAuthorizationTokenException, ObjectNotFoundException, UserNotFoundException, InvalidAuthenticationException, com.atlassian.crowd.exception.InvalidAuthorizationTokenException {
         if (logger.isDebugEnabled()) {
             logger.debug("Looking up role list for username: " + username);
         }
 
-        List<String> roles;
-        if (useGroups) {
-            roles = groupMembershipManager.getMemberships(username);
-        } else {
-            roles = Arrays.asList(securityServerClient.findRoleMemberships(username));
-        }
+        List<String> roles = groupMembershipManager.getMemberships(username);
         if (logger.isDebugEnabled()) {
             logger.debug("Obtained role list: " + roles.toString());
         }
@@ -84,11 +69,7 @@ public class DefaultNexusRoleManager implements NexusRoleManager {
      * @throws GroupNotFoundException 
      */
     public SOAPEntity getNexusRole(String roleName) throws RemoteException, InvalidAuthorizationTokenException, ObjectNotFoundException, GroupNotFoundException, InvalidAuthenticationException, com.atlassian.crowd.exception.InvalidAuthorizationTokenException {
-        if (useGroups) {
-            return groupManager.getGroup(roleName);
-        } else {
-            return securityServerClient.findRoleByName(roleName);
-        }
+        return groupManager.getGroup(roleName);
     }
 
 }

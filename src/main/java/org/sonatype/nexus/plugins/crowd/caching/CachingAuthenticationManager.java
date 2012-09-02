@@ -33,8 +33,7 @@ public class CachingAuthenticationManager extends SimpleAuthenticationManager {
 
     private AuthBasicCache basicCache;
 
-    public CachingAuthenticationManager(SecurityServerClient securityServerClient,
-            AuthBasicCache basicCache) {
+    public CachingAuthenticationManager(SecurityServerClient securityServerClient, AuthBasicCache basicCache) {
         super(securityServerClient);
         this.basicCache = basicCache;
     }

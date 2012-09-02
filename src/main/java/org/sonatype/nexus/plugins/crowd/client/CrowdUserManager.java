@@ -262,17 +262,13 @@ public class CrowdUserManager extends AbstractReadOnlyUserManager implements Use
         searchRestrictions.add(new SearchRestriction(SearchContext.SEARCH_MAX_RESULTS, Integer.toString(maxResults)));
         if (roles != null) {
             for (String roleName : roles) {
-                if (crowdClientHolder.getConfiguration().isUseGroups()) {
-                    searchRestrictions.add(new SearchRestriction(SearchContext.GROUP_PRINCIPAL_MEMBER, roleName));
-                } else {
-                    searchRestrictions.add(new SearchRestriction(SearchContext.ROLE_PRINCIPAL_MEMBER, roleName));
-                }
+                searchRestrictions.add(new SearchRestriction(SearchContext.GROUP_PRINCIPAL_MEMBER, roleName));
             }
         }
 
         try {
             List<SOAPPrincipal> principals = crowdClientHolder.getUserManager().searchUsers(
-                    searchRestrictions.toArray(new SearchRestriction[0]));
+                    searchRestrictions.toArray(new SearchRestriction[searchRestrictions.size()]));
             return Sets.newHashSet(Iterables.transform(principals, new Function<SOAPPrincipal, User>() {
 
                 public User apply(SOAPPrincipal from) {
