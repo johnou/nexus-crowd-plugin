@@ -22,6 +22,20 @@
         <developerConnection>scm:git:git@github.com:kuhnroyal/nexus-crowd-plugin</developerConnection>
     </scm>
 
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://maven.atlassian.com/repository/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
     <developers>
         <developer>
             <id>jedelson</id>
@@ -49,8 +63,8 @@
         </developer>
     </developers>
     <properties>
-        <nexus.version>2.1.2</nexus.version>
-        <crowd.version>2.5.0</crowd.version>
+        <nexus.version>2.2-01</nexus.version>
+        <crowd.version>2.5.2</crowd.version>
     </properties>
 
     <dependencies>
@@ -66,6 +80,20 @@
             <artifactId>nexus-rest-api</artifactId>
             <version>${nexus.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- exclude banned dependency -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -164,33 +192,15 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>app-lifecycle-maven-plugin</artifactId>
-                <version>1.6</version>
+                <version>1.0</version>
                 <extensions>true</extensions>
                 <dependencies>
                     <dependency>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>app-lifecycle-nexus</artifactId>
-                        <version>1.6</version>
+                        <version>1.0</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/modello</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
@@ -218,7 +228,6 @@
                 <executions>
                     <execution>
                         <id>crowd-config.xml</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>java</goal>
                             <goal>xpp3-reader</goal>
