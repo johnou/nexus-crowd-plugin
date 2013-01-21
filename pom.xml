@@ -63,7 +63,8 @@
         </developer>
     </developers>
     <properties>
-        <nexus.version>2.2-01</nexus.version>
+        <nexus.version>2.3.0-04</nexus.version>
+        <nexus-rest-api.version>2.2.1</nexus-rest-api.version>
         <crowd.version>2.5.2</crowd.version>
     </properties>
 
@@ -78,7 +79,7 @@
         <dependency>
             <groupId>org.sonatype.nexus</groupId>
             <artifactId>nexus-rest-api</artifactId>
-            <version>${nexus.version}</version>
+            <version>${nexus-rest-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -94,6 +95,13 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- No longer provided..? -->
+        <dependency>
+            <groupId>org.sonatype.plexus.appevents</groupId>
+            <artifactId>simple-event-multicaster</artifactId>
+            <version>1.2</version>
         </dependency>
 
         <dependency>
